@@ -7,6 +7,54 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Modal, Button, Form, Badge, Card } from 'react-bootstrap';
 
 function Home() {
+  // const yourArray = ['Final Year Project', 'Project AI', 'WEB', 'Project E-Commerce'];
+  const [yourArray, setYourArray] = useState([
+      
+  ]);
+  const [showModal, setShowModal] = useState(false);
+  const [tasks, setTasks] = useState([]);
+  const [taskData, setTaskData] = useState({
+    name: '',
+    startDate: '',
+    endDate: '',
+    status: 'To Do',
+    project: ''
+  });
+  const [editIndex, setEditIndex] = useState(null);
+  const [allTasks, setAllTasks] = useState([]); // Maintain all tasks
+
+
+  const handleClose = () => {
+    setShowModal(false);
+    setEditIndex(null);
+  };
+
+  const handleShow = () => setShowModal(true);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setTaskData({ ...taskData, [name]: value });
+  };
+
+  const handleSubmit = () => {
+    const updatedTasks = allTasks[taskData.project] || [];
+    const newTaskList = editIndex !== null ? [...updatedTasks] : [...updatedTasks, taskData];
+
+    const updatedAllTasks = { ...allTasks, [taskData.project]: newTaskList };
+    setAllTasks(updatedAllTasks);
+    if (editIndex !== null) {
+      const updatedTasks = [...tasks];
+      updatedTasks[editIndex] = taskData;
+      setTasks(updatedTasks);
+      setEditIndex(null);
+    } else {
+      setTasks([...tasks, taskData]);
+    }
+    setTaskData({ name: '', startDate: '', endDate: '', status: 'To Do' });
+    setShowModal(false);
+  };
+
+
 
   return (
     <>
