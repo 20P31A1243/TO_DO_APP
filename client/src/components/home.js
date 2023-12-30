@@ -7,55 +7,101 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Modal, Button, Form, Badge, Card } from 'react-bootstrap';
 
 function Home() {
-  // const yourArray = ['Final Year Project', 'Project AI', 'WEB', 'Project E-Commerce'];
-  const [yourArray, setYourArray] = useState([
+    // const yourArray = ['Final Year Project', 'Project AI', 'WEB', 'Project E-Commerce'];
+    const [yourArray, setYourArray] = useState([
       
-  ]);
-  const [showModal, setShowModal] = useState(false);
-  const [tasks, setTasks] = useState([]);
-  const [taskData, setTaskData] = useState({
-    name: '',
-    startDate: '',
-    endDate: '',
-    status: 'To Do',
-    project: ''
-  });
-  const [editIndex, setEditIndex] = useState(null);
-  const [allTasks, setAllTasks] = useState([]); // Maintain all tasks
+    ]);
+    const [showModal, setShowModal] = useState(false);
+    const [tasks, setTasks] = useState([]);
+    const [taskData, setTaskData] = useState({
+      name: '',
+      startDate: '',
+      endDate: '',
+      status: 'To Do',
+      project: ''
+    });
+    const [editIndex, setEditIndex] = useState(null);
+    const [allTasks, setAllTasks] = useState([]); // Maintain all tasks
 
-
-  const handleClose = () => {
-    setShowModal(false);
-    setEditIndex(null);
-  };
-
-  const handleShow = () => setShowModal(true);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setTaskData({ ...taskData, [name]: value });
-  };
-
-  const handleSubmit = () => {
-    const updatedTasks = allTasks[taskData.project] || [];
-    const newTaskList = editIndex !== null ? [...updatedTasks] : [...updatedTasks, taskData];
-
-    const updatedAllTasks = { ...allTasks, [taskData.project]: newTaskList };
-    setAllTasks(updatedAllTasks);
-    if (editIndex !== null) {
-      const updatedTasks = [...tasks];
-      updatedTasks[editIndex] = taskData;
-      setTasks(updatedTasks);
+  
+    const handleClose = () => {
+      setShowModal(false);
       setEditIndex(null);
-    } else {
-      setTasks([...tasks, taskData]);
-    }
-    setTaskData({ name: '', startDate: '', endDate: '', status: 'To Do' });
-    setShowModal(false);
-  };
+    };
+  
+    const handleShow = () => setShowModal(true);
+  
+    const handleChange = (e) => {
+      const { name, value } = e.target;
+      setTaskData({ ...taskData, [name]: value });
+    };
+  
+    const handleSubmit = () => {
+      const updatedTasks = allTasks[taskData.project] || [];
+      const newTaskList = editIndex !== null ? [...updatedTasks] : [...updatedTasks, taskData];
+  
+      const updatedAllTasks = { ...allTasks, [taskData.project]: newTaskList };
+      setAllTasks(updatedAllTasks);
+      if (editIndex !== null) {
+        const updatedTasks = [...tasks];
+        updatedTasks[editIndex] = taskData;
+        setTasks(updatedTasks);
+        setEditIndex(null);
+      } else {
+        setTasks([...tasks, taskData]);
+      }
+      setTaskData({ name: '', startDate: '', endDate: '', status: 'To Do' });
+      setShowModal(false);
+    };
 
+    const addproject = () => {
+      const newProjectName = prompt('Enter the new project name:');
+      if (newProjectName) {
+        setYourArray([...yourArray, newProjectName]);
+      }
+    };
+  
+    const handleEdit = (index) => {
+      setTaskData(tasks[index]);
+      setEditIndex(index);
+      setShowModal(true);
+    };
+    const handleProjectClick = (projectName) => {
+      // If a project is clicked, filter tasks based on the project name
+      if (projectName) {
+        const filteredTasks = allTasks.filter((task) => task.project === projectName);
+        setTasks(filteredTasks);
+      } else {
+        // If no project is selected, show all tasks
+        setTasks(allTasks);
+      }
+    };
+    const deleteProject = (projectName) => {
+      const updatedProjects = yourArray.filter((project) => project !== projectName);
+      setYourArray(updatedProjects);
+    
+      // Remove tasks related to the deleted project
+      const updatedTasks = allTasks.filter((task) => task.project !== projectName);
+      setAllTasks(updatedTasks);
+    
+      // If the deleted project was currently selected, reset tasks to show all tasks
+      if (projectName === taskData.project) {
+        setTasks(updatedTasks);
+      }
+    };
+    const handleDelete = (index) => {
+      const updatedTasks = tasks.filter((_, i) => i !== index);
+      setTasks(updatedTasks);
+    
+      // If the deleted task was part of allTasks, update allTasks
+      const updatedAllTasks = allTasks.filter((_, i) => i !== index);
+      setAllTasks(updatedAllTasks);
+    };
+    const filteredTasks = (status) => tasks.filter((task) => task.status === status);
 
-
+    useEffect(() => {
+      setAllTasks(tasks); // Update allTasks when tasks change
+    }, [tasks]);
   return (
     <>
          <div className="container-fluid">
@@ -120,9 +166,33 @@ function Home() {
             </div>
             <div className="offcanvas-body">
               {/* Your sidebar content goes here */}
-              Sidebar content
+              <div id='listlist'  className="mx-0">
+                <div id='menuheading'>
+                    <strong>
+                <i className="fa-solid fa-list" style={{color:'blue', fontWeight:'bolder'}}></i> Task boards
+                </strong>
+                </div>
+          </div>
+          <div id='projectslist' >
+          {yourArray.map((item, index) => (
+  <div key={index} id='projectsublist1' onClick={() => handleProjectClick(item)}>
+    {item}
+    <button
+      onClick={() => deleteProject(item)}
+      className='bg-transparent'
+      style={{ float: 'right', marginRight: '20px', border: 'none' }}
+    >
+      <i className="fa fa-trash" aria-hidden="true"></i>
+    </button>
+  </div>
+))}
+
+        <button style={{color:'blue', fontSize:'13px', border:'0'}} onClick={addproject}>&nbsp;&nbsp;&nbsp;+&nbsp;Add New Project</button>
+          </div>
             </div>
           </div>
+          
+    
 
           {/* Main content */}
           <div id='listlist2'>
