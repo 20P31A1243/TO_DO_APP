@@ -1,3 +1,4 @@
+import axios from 'axios';
 import React, { useState,useEffect } from 'react'
 import './home.css';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -7,10 +8,38 @@ import '@fortawesome/fontawesome-free/css/all.min.css';
 import { Modal, Button, Form, Badge, Card } from 'react-bootstrap';
 
 function Home() {
-    // const yourArray = ['Final Year Project', 'Project AI', 'WEB', 'Project E-Commerce'];
-    const [yourArray, setYourArray] = useState([
-      
-    ]);
+  const[projectname,setProjectname]=useState('')
+const[projectName,setProjectName]=useState('')
+const projectadd = () => {
+  let projectName = prompt('Enter the new project name:');
+  if (projectName) {
+    axios.post('http://localhost:8081/create', { projectName }) // Ensure it matches 'projectname' expected in the backend
+      .then((res) => {
+        console.log(res.data); // Log the response data
+        window.location.reload();
+      })
+      .catch((err) => {
+        console.log('Error:', err); // Log any error messages
+      });
+  }
+
+};
+const [projects, setProjects] = useState([]);
+useEffect(() => {
+  axios.get('http://localhost:8081/projects')
+    .then(res => {
+      setProjects(res.data); // Update state with the fetched data
+    })
+    .catch(err => {
+      console.error('Error fetching data:', err);
+    });
+}, []);
+useEffect(()=>{
+  axios.get('http://localhost:8081/')
+  .then(res=>console.log(res))
+  .catch(err=>console.log(err))
+},[])
+const [yourArray, setYourArray] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [tasks, setTasks] = useState([]);
     const [taskData, setTaskData] = useState({
@@ -53,13 +82,8 @@ function Home() {
       setTaskData({ name: '', startDate: '', endDate: '', status: 'To Do' });
       setShowModal(false);
     };
-
-    const addproject = () => {
-      const newProjectName = prompt('Enter the new project name:');
-      if (newProjectName) {
-        setYourArray([...yourArray, newProjectName]);
-      }
-    };
+    
+    
   
     const handleEdit = (index) => {
       setTaskData(tasks[index]);
@@ -77,17 +101,16 @@ function Home() {
       }
     };
     const deleteProject = (projectName) => {
-      const updatedProjects = yourArray.filter((project) => project !== projectName);
-      setYourArray(updatedProjects);
-    
-      // Remove tasks related to the deleted project
-      const updatedTasks = allTasks.filter((task) => task.project !== projectName);
-      setAllTasks(updatedTasks);
-    
-      // If the deleted project was currently selected, reset tasks to show all tasks
-      if (projectName === taskData.project) {
-        setTasks(updatedTasks);
-      }
+      axios.delete(`http://localhost:8081/projects/${projectName}`)
+        .then((res) => {
+          console.log('Project deleted:', res.data);
+          // Handle any necessary UI updates or state changes after successful deletion
+          // For example, refreshing the project list or removing the deleted project from the state
+        })
+        .catch((err) => {
+          console.error('Error deleting project:', err);
+          // Handle errors or display error messages to the user if deletion fails
+        });
     };
     const handleDelete = (index) => {
       const updatedTasks = tasks.filter((_, i) => i !== index);
@@ -116,20 +139,22 @@ function Home() {
                 </div>
           </div>
           <div id='projectslist' >
-          {yourArray.map((item, index) => (
-  <div key={index} id='projectsublist' onClick={() => handleProjectClick(item)}>
-    {item}
-    <button
-      onClick={() => deleteProject(item)}
+          {projects.map(project => (
+          <div id='projectsublist' onClick={() => handleProjectClick(project)}>
+          <div key={project.id} className='bg-transparent'>{project.Project_Name}</div>
+        
+      <button
+      onClick={() => deleteProject(project)}
       className='bg-transparent'
-      style={{ float: 'right', marginRight: '20px', border: 'none' }}
+      style={{ float: 'right', marginRight: '20px',marginTop:'-20px', border: 'none' }}
     >
       <i className="fa fa-trash" aria-hidden="true"></i>
     </button>
   </div>
-))}
 
-        <button style={{color:'blue', fontSize:'13px', border:'0'}} onClick={addproject}>&nbsp;&nbsp;&nbsp;+&nbsp;Add New Project</button>
+  ))}
+
+        <button style={{color:'blue', fontSize:'13px', border:'0'}} onClick={projectadd}>&nbsp;&nbsp;&nbsp;+&nbsp;Add New Project</button>
           </div>
         </div>
         {/* Main content */}
@@ -166,6 +191,7 @@ function Home() {
             </div>
             <div className="offcanvas-body">
               {/* Your sidebar content goes here */}
+            
               <div id='listlist'  className="mx-0">
                 <div id='menuheading'>
                     <strong>
@@ -174,26 +200,25 @@ function Home() {
                 </div>
           </div>
           <div id='projectslist' >
-          {yourArray.map((item, index) => (
-  <div key={index} id='projectsublist1' onClick={() => handleProjectClick(item)}>
-    {item}
-    <button
-      onClick={() => deleteProject(item)}
+          {projects.map(project => (
+          <div id='projectsublist' onClick={() => handleProjectClick(project)}>
+          <div key={project.id} className='bg-transparent'>{project.Project_Name}</div>
+        
+      <button
+      onClick={() => deleteProject(project)}
       className='bg-transparent'
-      style={{ float: 'right', marginRight: '20px', border: 'none' }}
+      style={{ float: 'right', marginRight: '20px',marginTop:'-20px', border: 'none' }}
     >
       <i className="fa fa-trash" aria-hidden="true"></i>
     </button>
   </div>
-))}
 
-        <button style={{color:'blue', fontSize:'13px', border:'0'}} onClick={addproject}>&nbsp;&nbsp;&nbsp;+&nbsp;Add New Project</button>
+  ))}
+
+        <button style={{color:'blue', fontSize:'13px', border:'0'}} onClick={projectadd}>&nbsp;&nbsp;&nbsp;+&nbsp;Add New Project</button>
           </div>
             </div>
           </div>
-          
-    
-
           {/* Main content */}
           <div id='listlist2'>
                 <div id='menuheading1'>
